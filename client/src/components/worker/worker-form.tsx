@@ -39,7 +39,7 @@ export default function WorkerForm({
       lastname: "",
       department: "",
       role: "",
-      supervisorId: undefined,
+      supervisorId: null,
     },
   });
 
@@ -109,8 +109,8 @@ export default function WorkerForm({
             <FormItem>
               <FormLabel>Supervisor</FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)}
-                value={field.value?.toString()}
+                onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))}
+                value={field.value?.toString() || "none"}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -118,7 +118,7 @@ export default function WorkerForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">No Supervisor</SelectItem>
                   {supervisors?.map((supervisor) => (
                     <SelectItem key={supervisor.id} value={supervisor.id.toString()}>
                       {supervisor.name} {supervisor.lastname}

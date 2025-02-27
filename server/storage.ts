@@ -1,122 +1,121 @@
-import { Worker, InsertWorker, Permit, InsertPermit, User, InsertUser } from "@shared/schema";
+import { users, workers, permits, type User, type InsertUser, type Worker, type InsertWorker, type Permit, type InsertPermit } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Worker operations
   getWorkers(): Promise<Worker[]>;
   getWorker(id: number): Promise<Worker | undefined>;
   createWorker(worker: InsertWorker): Promise<Worker>;
   updateWorker(id: number, worker: Partial<InsertWorker>): Promise<Worker>;
   deleteWorker(id: number): Promise<void>;
-  
+
   // Permit operations
   getPermits(): Promise<Permit[]>;
   getPermit(id: number): Promise<Permit | undefined>;
   createPermit(permit: InsertPermit): Promise<Permit>;
   updatePermit(id: number, permit: Partial<InsertPermit>): Promise<Permit>;
-  
+
   sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private workers: Map<number, Worker>;
-  private permits: Map<number, Permit>;
-  private currentId: { [key: string]: number };
+export class DatabaseStorage implements IStorage {
   public sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
-    this.workers = new Map();
-    this.permits = new Map();
-    this.currentId = { users: 1, workers: 1, permits: 1 };
-    this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
+    });
   }
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId.users++;
-    const user: User = { ...insertUser, id, role: "employee" };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   // Worker methods
   async getWorkers(): Promise<Worker[]> {
-    return Array.from(this.workers.values());
+    return await db.select().from(workers);
   }
 
   async getWorker(id: number): Promise<Worker | undefined> {
-    return this.workers.get(id);
+    const [worker] = await db.select().from(workers).where(eq(workers.id, id));
+    return worker;
   }
 
   async createWorker(worker: InsertWorker): Promise<Worker> {
-    const id = this.currentId.workers++;
-    const newWorker: Worker = { ...worker, id };
-    this.workers.set(id, newWorker);
+    const [newWorker] = await db.insert(workers).values(worker).returning();
     return newWorker;
   }
 
   async updateWorker(id: number, worker: Partial<InsertWorker>): Promise<Worker> {
-    const existing = await this.getWorker(id);
-    if (!existing) throw new Error("Worker not found");
-    
-    const updated: Worker = { ...existing, ...worker };
-    this.workers.set(id, updated);
+    const [updated] = await db
+      .update(workers)
+      .set(worker)
+      .where(eq(workers.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new Error("Worker not found");
+    }
+
     return updated;
   }
 
   async deleteWorker(id: number): Promise<void> {
-    this.workers.delete(id);
+    await db.delete(workers).where(eq(workers.id, id));
   }
 
   // Permit methods
   async getPermits(): Promise<Permit[]> {
-    return Array.from(this.permits.values());
+    return await db.select().from(permits);
   }
 
   async getPermit(id: number): Promise<Permit | undefined> {
-    return this.permits.get(id);
+    const [permit] = await db.select().from(permits).where(eq(permits.id, id));
+    return permit;
   }
 
   async createPermit(permit: InsertPermit): Promise<Permit> {
-    const id = this.currentId.permits++;
-    const newPermit: Permit = {
-      ...permit,
-      id,
-      createdAt: new Date(),
-      status: "pending"
-    };
-    this.permits.set(id, newPermit);
+    const [newPermit] = await db.insert(permits).values(permit).returning();
     return newPermit;
   }
 
   async updatePermit(id: number, permit: Partial<InsertPermit>): Promise<Permit> {
-    const existing = await this.getPermit(id);
-    if (!existing) throw new Error("Permit not found");
-    
-    const updated: Permit = { ...existing, ...permit };
-    this.permits.set(id, updated);
+    const [updated] = await db
+      .update(permits)
+      .set(permit)
+      .where(eq(permits.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new Error("Permit not found");
+    }
+
     return updated;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

@@ -1,0 +1,116 @@
+**Project Goal:** Develop a web-based Human Resources Management (HRM) application within Replit using React, Tailwind CSS, JavaScript, and MySQL for the backend.
+
+**Application Name:** (You can choose a name, e.g., "Workforce Manager," "Company Hub," etc.)
+
+**Technology Stack:**
+
+* **Frontend:**
+    * React (Create React App)
+    * Tailwind CSS (for styling)
+    * JavaScript
+* **Backend:**
+    * Node.js (Express.js for API)
+    * MySQL (for database)
+* **Replit Environment:**
+    * Utilize Replit's workspace for development, deployment, and database setup.
+
+**Core Features and Requirements:**
+
+**1. Company Panel (Dashboard & Worker Management):**
+
+* **Dashboard:**
+    * Provide a summary overview of key HR metrics (e.g., number of employees, pending permit requests).
+    * Include quick access links to other sections of the application.
+* **Authentication:**
+    * Implement user authentication (login/logout) to secure the application.
+    * Consider role-based access control (RBAC) to differentiate between admin and supervisor functionalities.
+* **Worker Resources (CRUD):**
+    * Enable administrators to manage worker data.
+    * Implement CRUD (Create, Read, Update, Delete) operations for worker records.
+    * Provide file upload functionality for importing worker data from .txt, .csv, and .xlsx files.
+    * The worker table should have at least these fields: id, name, lastname, department, role, supervisorID.
+
+**2. Roles and Permissions Management:**
+
+* Create a dedicated page to manage company roles and permissions.
+* Allow administrators to:
+    * Create new roles.
+    * Assign specific permissions to each role.
+    * View and modify existing roles and permissions.
+
+**3. Organization Chart (Basic Representation):**
+
+* Generate a visual representation of the company's organizational structure.
+* Display employees with their associated roles and departments.
+* Focus on a clear, hierarchical list-based representation (no complex graphical rendering or calculations required).
+* The organization chart should show the supervisor of each worker.
+
+**4. Permit Request Management:**
+
+* **Permit Request Creation:**
+    * Allow employees to submit permit requests (e.g., time off, leave).
+    * Include fields for:
+        * Employee name.
+        * Permit type.
+        * Start/end dates.
+        * Reason.
+* **Request History:**
+    * Display a list of all permit requests.
+    * Filter and display pending requests for supervisors.
+    * The permit request table should have at least these fields: id, workerID, permitType, startDate, endDate, reason, status, supervisorID.
+
+**5. Proof of Work Management:**
+
+* **Proof of Work Generation (PDF):**
+    * Generate a PDF document containing proof of employment for a worker.
+    * Include:
+        * Worker's personal information (name, etc.).
+        * Company information.
+        * Authorizing signature (placeholder or image upload).
+* **Worker Information Display:**
+    * Display the worker's details within the proof of work view.
+* **Supervisor Notification:**
+    * Implement a notification system to alert the HR supervisor when a proof of work request is generated.
+
+**Backend API Endpoints (Examples):**
+
+* `/api/workers` (GET, POST, PUT, DELETE)
+* `/api/roles` (GET, POST, PUT, DELETE)
+* `/api/permits` (GET, POST, PUT)
+* `/api/proofs` (POST)
+* `/api/auth/login` (POST)
+* `/api/auth/logout` (POST)
+
+**Database Schema (MySQL - Basic):**
+
+* `workers` (id, name, lastname, department, role, supervisorID)
+* `roles` (id, name, permissions)
+* `permits` (id, workerID, permitType, startDate, endDate, reason, status, supervisorID)
+* `users` (id, username, password, role)
+
+**Development Steps (Recommended):**
+
+1.  **Replit Setup:** Create a new Replit workspace with a React.js template.
+2.  **Tailwind CSS Integration:** Install and configure Tailwind CSS.
+3.  **Backend Setup:** Create a Node.js/Express.js backend and connect to a MySQL database within Replit.
+4.  **Authentication:** Implement user authentication.
+5.  **Database Models:** Define database models for workers, roles, permits, and users.
+6.  **API Development:** Build the necessary API endpoints.
+7.  **Frontend Component Development:** Create React components for each feature.
+8.  **Testing:** Thoroughly test each feature and API endpoint.
+9.  **Deployment (Replit):** Deploy the application using Replit's deployment features.
+
+**Important Considerations:**
+
+* **Error Handling:** Implement robust error handling in both the frontend and backend.
+* **Security:** Follow security best practices to protect user data.
+* **User Experience (UX):** Design a user-friendly and intuitive interface.
+* **Clear and concise code:** Code should be easy to read and maintain.
+
+**Deliverables:**
+
+* A functional React application hosted on Replit.
+* Source code for the frontend and backend.
+* A basic database schema.
+
+**This prompt provides a comprehensive outline for building the HRM application. Remember to break down the development process into smaller, manageable tasks.**
